@@ -20,7 +20,7 @@ Skill dla Claude Code (i innych agentów czytających `SKILL.md`), który zamien
 ## Instalacja
 
 ```bash
-git clone https://github.com/OWNER/papier-firmowy.git
+git clone https://github.com/lukasz-slusarski/papier-firmowy.git
 ln -s "$PWD/papier-firmowy/skills/papier-firmowy" ~/.claude/skills/papier-firmowy
 ```
 
