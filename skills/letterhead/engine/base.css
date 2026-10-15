@@ -6,7 +6,6 @@
   --blue: #2563eb;  --blue-bg: rgba(37, 99, 235, 0.08);
   --green: #22a559; --green-bg: rgba(34, 165, 89, 0.10);
   --amber: #b45309; --amber-bg: rgba(245, 158, 11, 0.14);
-  --accent-bg: color-mix(in srgb, var(--c-accent) 8%, transparent);
 }
 
 /* Page size, margins and footer (@page with @bottom-* boxes) are added by letterhead.py,
@@ -86,11 +85,17 @@ table {
   border: 1px solid var(--c-lines); border-radius: var(--r-md); overflow: hidden;
   margin: 10px 0 16px; font-size: 9.6pt; break-inside: avoid;
 }
+thead tr { background: var(--c-dark); }
 thead th { background: var(--c-dark); color: var(--c-on-dark); font-weight: 700; text-align: left; padding: 9px 12px; }
 td { padding: 8px 12px; vertical-align: top; border-top: 1px solid var(--c-lines); }
-tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--c-card) 55%, #fff); }
+tbody tr:nth-child(even) td { background: var(--zebra); }
 tbody tr:first-child td { border-top: none; }
-tbody tr:has(> td:first-child > strong:only-child) td { background: var(--accent-bg); }
+/* Rounded corners on the corner cells too, since overflow: hidden does not clip them in every renderer */
+thead tr:first-child th:first-child { border-top-left-radius: var(--r-md); }
+thead tr:first-child th:last-child { border-top-right-radius: var(--r-md); }
+tbody tr:last-child td:first-child { border-bottom-left-radius: var(--r-md); }
+tbody tr:last-child td:last-child { border-bottom-right-radius: var(--r-md); }
+tbody tr.total td { background: var(--accent-bg); }
 th[style*="right"], td[style*="right"] { white-space: nowrap; }
 
 /* ---------- Blocks ---------- */
@@ -183,5 +188,5 @@ body.type-letter .subject { font-weight: 700; color: var(--c-headings); margin-b
 .letter-signature .role { color: var(--c-muted); margin: 0; font-size: 9.5pt; }
 
 /* A paragraph right before a screenshot never stays alone at the bottom of a page */
-p:has(+ p > img:only-child), h2 + p:has(+ p > img:only-child) { break-after: avoid; }
-p:has(> img:only-child) { break-inside: avoid; margin: 6px 0 14px; }
+p.before-shot { break-after: avoid; }
+p.shot { break-inside: avoid; margin: 6px 0 14px; }

@@ -5,7 +5,7 @@ description: Branded letterhead for every PDF (contract, proposal, report, clien
 
 # Letterhead
 
-You write the content in Markdown; the brand in `brands/<slug>/` gives the look. Engine: pandoc builds HTML, Chromium (Playwright) prints the PDF. All commands:
+You write the content in Markdown; the brand in `brands/<slug>/` gives the look. Engine: pandoc builds HTML, WeasyPrint prints the PDF. All commands:
 
 ```bash
 L=${CLAUDE_SKILL_DIR}/engine/letterhead.py
@@ -66,7 +66,7 @@ The same for every brand and type. Change it in `engine/letterhead.py` (`MARGIN`
 
 ## Security
 
-The document is treated as untrusted input: raw HTML is disabled in pandoc, JavaScript is off in the browser, network requests are blocked, and files load only from the document directory, the skill and `--files` directories.
+The document is treated as untrusted input: raw HTML is disabled in pandoc, WeasyPrint runs no JavaScript, network requests are blocked, and files load only from the document directory, the skill and `--files` directories.
 
 ## New company
 

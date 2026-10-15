@@ -11,11 +11,12 @@ A skill for Claude Code (and other agents that read `SKILL.md`) that turns Markd
 - **Building blocks:** tables with a highlighted total row, KPI cards, callouts, status pills, contract parties and signature lines, guide steps that never split across pages.
 - **Consistent layout:** equal 16 mm margins, the logo on page one, logomark, domain and page number in the footer of the following pages.
 - **Brand check:** `check` validates the brand (font files, color contrast, legal details for contracts).
-- **Safe rendering:** raw HTML off, JavaScript off, no network requests, images only from the document's folder.
+- **Light and safe rendering:** no browser, no JavaScript, no network requests, images only from the document's folder.
 
 ## Requirements
 
-- Python 3.10+, `pip install pyyaml playwright` and `playwright install chromium`
+- Python 3.10+ and `pip install pyyaml weasyprint` (WeasyPrint 70 or newer, no browser needed)
+- WeasyPrint's system libraries: on macOS `brew install pango` (with the python.org Python also `export DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib`), on Linux see the [WeasyPrint install guide](https://doc.courtbouillon.org/weasyprint/stable/first_steps.html)
 - [pandoc](https://pandoc.org/installing.html)
 
 ## Install

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Letterhead: Markdown -> PDF in a company's branding (pandoc -> HTML -> Chromium/Playwright).
+"""Letterhead: Markdown -> PDF in a company's branding (pandoc -> HTML -> WeasyPrint).
 
   python3 letterhead.py brands                          # list brands and their status
   python3 letterhead.py pdf doc.md --brand example      # doc.pdf next to it (brand can also be in frontmatter)
@@ -10,7 +10,7 @@
 
 Document types (frontmatter `type:` or --type): document (default: proposal, report), contract, guide, letter.
 """
-import base64, argparse, html, pathlib, re, shutil, subprocess, sys, tempfile, urllib.parse
+import base64, argparse, html, mimetypes, pathlib, re, shutil, subprocess, sys, urllib.parse
 
 import yaml
 
@@ -49,6 +49,12 @@ def lum(hexc):
     r, g, b = (int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
     f = lambda c: c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
     return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+
+def mix(a, b, share):
+    """Hex color: share of a, the rest b (the renderer has no color-mix())."""
+    a, b = a.lstrip("#"), b.lstrip("#")
+    return "#" + "".join(f"{round(int(a[i:i + 2], 16) * share + int(b[i:i + 2], 16) * (1 - share)):02x}"
+                         for i in (0, 2, 4))
 
 def contrast(a, b):
     la, lb = sorted((lum(a), lum(b)), reverse=True)
@@ -124,6 +130,8 @@ def brand_css(b, meta):
     return "\n".join(faces) + f"""
 :root {{
 {variables}
+  --accent-bg: {mix(c['accent'], '#ffffff', 0.08)};
+  --zebra: {mix(c['card'], '#ffffff', 0.55)};
   --font: '{f['family']}', sans-serif;
   --w-headings: {f.get('heading_weight', 700)};
   --tracking-headings: {f.get('heading_tracking', '0')};
@@ -218,6 +226,16 @@ def frontmatter(text):
         return {}, text
     return yaml.safe_load(m.group(1)) or {}, text[m.end():]
 
+def mark_up(frag):
+    """Classes for what CSS would otherwise need :has() for (the renderer does not support it)."""
+    # A row whose first cell is only bold text is a total row.
+    frag = re.sub(r'<tr(?: class="([^"]*)")?>(\s*<td[^>]*><strong>[^<]*</strong></td>)',
+                  lambda m: f'<tr class="{(m[1] or "") + " total"}">{m[2]}', frag)
+    # A paragraph holding only a screenshot, and the paragraph right before it.
+    frag = re.sub(r'<p>(<img [^>]*>)</p>', r'<p class="shot">\1</p>', frag)
+    frag = re.sub(r'<p>((?:(?!</p>).)*)</p>(\s*<p class="shot">)', r'<p class="before-shot">\1</p>\2', frag, flags=re.S)
+    return frag
+
 def build_html(src, b, kind, meta, body):
     if meta.get("title") and kind != "letter":
         body = re.sub(r"\A\s*# [^\n]*\n", "", body, count=1)
@@ -226,6 +244,7 @@ def build_html(src, b, kind, meta, body):
     frag = subprocess.run(
         ["pandoc", "-f", "markdown+pipe_tables+fenced_divs+bracketed_spans+smart-implicit_figures-raw_html-raw_attribute", "-t", "html5"],
         input=body, capture_output=True, text=True, check=True).stdout
+    frag = mark_up(frag)
     marker = (b.get("style") or {}).get("heading_marker", "dot")
     css = brand_css(b, meta) + BASE_CSS.read_text()
     extra = b["_dir"] / "extra.css"
@@ -237,43 +256,46 @@ def build_html(src, b, kind, meta, body):
 <body class="type-{kind} marker-{marker} brand-{b['_slug']}">
 {header(meta, b, kind)}{frag}{closing(meta, b, kind)}</body></html>"""
 
-def allowed(url, dirs):
-    """May the browser load this URL: data:, or a file inside the document, skill or --files directories."""
-    if url.startswith("data:"):
-        return True
+def local_path(url, dirs):
+    """The file a file: URL points to, if it lies inside the document, skill or --files directories; else None."""
     if not url.startswith("file:"):
-        return False
-    # Unusual URLs are rejected instead of interpreted, so Python and Chromium cannot read them differently:
-    # non-local host, query, backslash, encoded slash or NUL, a . or .. segment.
+        return None
+    # Unusual URLs are rejected instead of interpreted: non-local host, query, backslash,
+    # encoded slash or NUL, a . or .. segment.
     u = urllib.parse.urlsplit(url)
     if u.netloc not in ("", "localhost") or u.query or "\\" in u.path:
-        return False
+        return None
     if any(z in u.path.lower() for z in ("%2f", "%5c", "%00")):
-        return False
+        return None
     raw = urllib.parse.unquote(u.path)
     if any(s in (".", "..") for s in raw.split("/")):
-        return False
+        return None
     path = pathlib.Path(raw).resolve()
-    return any(path.is_relative_to(k) for k in dirs)
+    if path.is_file() and any(path.is_relative_to(k) for k in dirs):
+        return path
+    return None
 
 def render(doc, out, dirs=()):
-    from playwright.sync_api import sync_playwright
-    with tempfile.TemporaryDirectory() as tmp:
-        dirs = [pathlib.Path(k).resolve() for k in (*dirs, ROOT, tmp)]
-        page = pathlib.Path(tmp) / "doc.html"
-        page.write_text(doc)
-        with sync_playwright() as p:
-            br = p.chromium.launch()
-            # Document content cannot run scripts or reach the network: local files and data: only.
-            ctx = br.new_context(java_script_enabled=False)
-            # Images only from the document directory (and below), the skill, or --files.
-            ctx.route("**/*", lambda r: r.continue_() if allowed(r.request.url, dirs) else r.abort())
-            pg = ctx.new_page()
-            pg.goto(page.as_uri())
-            pg.wait_for_load_state("networkidle")
-            pg.evaluate("document.fonts.ready")
-            pg.pdf(path=str(out), print_background=True, prefer_css_page_size=True)
-            br.close()
+    from weasyprint import HTML
+    from weasyprint.urls import URLFetcher, URLFetcherResponse
+
+    dirs = [pathlib.Path(k).resolve() for k in (*dirs, ROOT)]
+
+    class Fetcher(URLFetcher):
+        # Document content cannot reach the network: data: URLs and local files only, and files
+        # only from the document directory (and below), the skill, or --files. The file is read
+        # here, from the path that was checked, so nothing else interprets the URL.
+        def fetch(self, url, headers=None):
+            if url.startswith("data:"):
+                return super().fetch(url, headers)
+            path = local_path(url, dirs)
+            if path is None:
+                raise ValueError(f"blocked: {url}")
+            kind = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+            return URLFetcherResponse(path.as_uri(), path.read_bytes(), {"Content-Type": kind})
+
+    # WeasyPrint runs no JavaScript, so scripts in the document are inert.
+    HTML(string=doc, base_url=dirs[0].as_uri() + "/", url_fetcher=Fetcher()).write_pdf(str(out), presentational_hints=True)
 
 def make_pdf(src, brand=None, kind=None, out=None, keep_html=False, files=()):
     src = pathlib.Path(src).resolve()
