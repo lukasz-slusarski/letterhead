@@ -1,0 +1,187 @@
+/* Letterhead: the shared look of every brand.
+   Colors, font and logo come from brands/<brand>/brand.yaml as CSS variables (--c-*, --font...), set by letterhead.py.
+   No brand color is hard-coded here. Emphasis uses backgrounds, never a one-sided accent border. */
+
+:root {
+  --blue: #2563eb;  --blue-bg: rgba(37, 99, 235, 0.08);
+  --green: #22a559; --green-bg: rgba(34, 165, 89, 0.10);
+  --amber: #b45309; --amber-bg: rgba(245, 158, 11, 0.14);
+  --accent-bg: color-mix(in srgb, var(--c-accent) 8%, transparent);
+}
+
+/* Page size, margins and footer (@page with @bottom-* boxes) are added by letterhead.py,
+   because CSS variables do not work inside @page. */
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  font-family: var(--font);
+  font-variation-settings: var(--font-settings);
+  font-size: 10.5pt;
+  line-height: 1.55;
+  color: var(--c-text);
+  margin: 0;
+}
+
+/* ---------- Cover (block at the top of page one) ---------- */
+.cover {
+  background: var(--c-warm);
+  border-radius: var(--r-lg);
+  padding: 26px 30px 28px;
+  margin-bottom: 26px;
+}
+.cover .logo { height: var(--logo-h); display: block; margin-bottom: 34px; }
+.label {
+  display: inline-block;
+  background: var(--c-dark);
+  color: var(--c-on-dark);
+  font-size: 8.5pt;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 4px 11px;
+  border-radius: 999rem;
+  margin-bottom: 12px;
+}
+.cover h1 { font-size: 26pt; line-height: 1.15; margin: 0 0 8px; }
+.cover h1 .dot { color: var(--c-accent); }
+.cover .subtitle { font-size: 12.5pt; color: var(--c-headings); opacity: .8; margin: 0; }
+.cover .meta { font-size: 9pt; color: var(--c-muted); margin-top: 18px; }
+
+/* ---------- Headings ---------- */
+h1, h2, h3, h4 {
+  color: var(--c-headings);
+  font-weight: var(--w-headings);
+  letter-spacing: var(--tracking-headings);
+  line-height: 1.25;
+}
+h2 { font-size: 15pt; margin: 30px 0 12px; display: flex; align-items: center; gap: 10px; break-after: avoid; }
+.marker-dot h2::before {
+  content: ""; flex: 0 0 auto; width: 10px; height: 10px;
+  border-radius: 999rem; background: var(--c-accent);
+}
+h3 { font-size: 12pt; margin: 20px 0 8px; break-after: avoid; }
+h4 { font-size: 10.5pt; margin: 14px 0 6px; }
+
+p { margin: 0 0 9px; }
+strong { font-weight: 700; color: var(--c-headings); }
+a { color: var(--c-accent); text-decoration: none; }
+hr { display: none; }
+
+ul, ol { margin: 4px 0 12px; padding-left: 20px; }
+li { margin: 3px 0; }
+ul li::marker { color: var(--c-accent); }
+ol li::marker { color: var(--c-accent); font-weight: 700; }
+
+code {
+  font-family: "SF Mono", Menlo, monospace; font-size: 8.8pt;
+  background: var(--c-card); border-radius: 5px; padding: 1px 5px;
+}
+
+img { max-width: 100%; }
+
+/* ---------- Tables ---------- */
+table {
+  width: 100%; border-collapse: separate; border-spacing: 0;
+  border: 1px solid var(--c-lines); border-radius: var(--r-md); overflow: hidden;
+  margin: 10px 0 16px; font-size: 9.6pt; break-inside: avoid;
+}
+thead th { background: var(--c-dark); color: var(--c-on-dark); font-weight: 700; text-align: left; padding: 9px 12px; }
+td { padding: 8px 12px; vertical-align: top; border-top: 1px solid var(--c-lines); }
+tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--c-card) 55%, #fff); }
+tbody tr:first-child td { border-top: none; }
+tbody tr:has(> td:first-child > strong:only-child) td { background: var(--accent-bg); }
+th[style*="right"], td[style*="right"] { white-space: nowrap; }
+
+/* ---------- Blocks ---------- */
+blockquote, .callout {
+  background: var(--accent-bg); border-radius: var(--r-md);
+  padding: 12px 16px; margin: 12px 0 16px; break-inside: avoid;
+}
+blockquote p:last-child, .callout p:last-child { margin-bottom: 0; }
+.callout.info { background: var(--blue-bg); }
+.callout.ok   { background: var(--green-bg); }
+.callout.warn { background: var(--amber-bg); }
+.callout.gray { background: var(--c-card); }
+
+.card { background: var(--c-card); border-radius: var(--r-lg); padding: 14px 18px; margin: 12px 0 16px; break-inside: avoid; }
+.card > :first-child { margin-top: 0; }
+.card > :last-child { margin-bottom: 0; }
+.card.warm { background: var(--c-warm); }
+.card.dark { background: var(--c-dark); color: var(--c-on-dark); }
+.card.dark strong, .card.dark h3, .card.dark .big { color: var(--c-on-dark); }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 16px; }
+.grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.grid > .card { margin: 0; }
+
+.big { font-size: 22pt; font-weight: 700; color: var(--c-headings); line-height: 1.1; }
+.big small { font-size: 10pt; font-weight: 400; color: var(--c-muted); }
+
+.tag {
+  display: inline-block; font-size: 8.3pt; font-weight: 700; line-height: 1.5;
+  padding: 1px 8px; border-radius: 999rem; white-space: nowrap; vertical-align: 1px;
+  background: var(--c-card); color: var(--c-headings);
+}
+.tag.red   { background: var(--c-accent); color: var(--c-on-accent); }
+.tag.dark  { background: var(--c-dark); color: var(--c-on-dark); }
+.tag.blue  { background: var(--blue-bg); color: var(--blue); }
+.tag.green { background: var(--green-bg); color: var(--green); }
+.tag.amber { background: var(--amber-bg); color: var(--amber); }
+
+.muted { color: var(--c-muted); }
+.page-break { break-before: page; }
+
+/* ---------- Compact header (contract, letter, guide) ---------- */
+.head {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 24px;
+  padding-bottom: 14px; margin-bottom: 26px; border-bottom: 1px solid var(--c-lines);
+}
+.head .logo { height: var(--logo-h); display: block; }
+.head .sender { font-size: 8.3pt; line-height: 1.45; color: var(--c-muted); text-align: right; }
+.head .sender b { color: var(--c-headings); font-weight: 700; }
+
+/* ---------- Contract ---------- */
+.type-contract body, body.type-contract { font-size: 10pt; text-align: justify; hyphens: auto; }
+body.type-contract .title-block { text-align: center; margin: 4px 0 26px; }
+body.type-contract .title-block h1 { font-size: 17pt; margin: 0 0 6px; }
+body.type-contract .title-block .meta { font-size: 9.5pt; color: var(--c-muted); }
+body.type-contract h2 { font-size: 11.5pt; margin: 22px 0 8px; display: block; }
+body.type-contract h2::before { display: none; }
+body.type-contract ul li::marker, body.type-contract ol li::marker { color: var(--c-text); }
+.parties { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 20px; text-align: left; }
+.parties > div { background: var(--c-card); border-radius: var(--r-md); padding: 12px 16px; font-size: 9.5pt; }
+.parties .party-role { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--c-muted); margin-bottom: 4px; }
+.signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; margin-top: 56px; break-inside: avoid; text-align: center; }
+.signatures > div { border-top: 1px solid var(--c-text); padding-top: 6px; font-size: 9pt; color: var(--c-muted); }
+.signatures > div p { margin: 0; }
+
+/* ---------- Guide ---------- */
+body.type-guide .title-block { margin: 0 0 22px; }
+body.type-guide .title-block h1 { font-size: 22pt; margin: 0 0 6px; }
+body.type-guide .title-block .subtitle { font-size: 11.5pt; color: var(--c-muted); margin: 0; }
+.step { break-inside: avoid; margin: 0 0 18px; }
+.step > p:first-child { margin-bottom: 8px; }
+body.type-guide img:not(.logo), .step img {
+  display: block; max-width: 100%; max-height: 105mm; height: auto;
+  border: 1px solid var(--c-lines); border-radius: var(--r-md); margin: 6px 0 4px;
+}
+.num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; margin-right: 8px; border-radius: 999rem;
+  background: var(--c-dark); color: var(--c-on-dark); font-size: 8.5pt; font-weight: 700; vertical-align: 1px;
+}
+
+/* ---------- Letter ---------- */
+body.type-letter { font-size: 10.5pt; }
+.recipient { display: flex; justify-content: space-between; align-items: flex-end; margin: 8px 0 30px; }
+.recipient .to { font-size: 10pt; line-height: 1.5; }
+.recipient .date { font-size: 9.5pt; color: var(--c-muted); }
+body.type-letter .subject { font-weight: 700; color: var(--c-headings); margin-bottom: 18px; }
+.letter-signature { margin-top: 34px; }
+.letter-signature .name { font-weight: 700; color: var(--c-headings); margin: 0; }
+.letter-signature .role { color: var(--c-muted); margin: 0; font-size: 9.5pt; }
+
+/* A paragraph right before a screenshot never stays alone at the bottom of a page */
+p:has(+ p > img:only-child), h2 + p:has(+ p > img:only-child) { break-after: avoid; }
+p:has(> img:only-child) { break-inside: avoid; margin: 6px 0 14px; }

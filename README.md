@@ -1,50 +1,47 @@
-# papier-firmowy
+# letterhead
 
-Skill dla Claude Code (i innych agentów czytających `SKILL.md`), który zamienia Markdown w PDF na papierze firmowym: logo, font, kolory i dane prawne Twojej firmy. Oferta, umowa, list, instrukcja ze zrzutami ekranu wychodzą z tym samym układem strony, a agent przed każdym PDF-em pyta, dla jakiej firmy jest dokument.
+A skill for Claude Code (and other agents that read `SKILL.md`) that turns Markdown into PDFs on your company letterhead: logo, font, colors and legal details. Proposals, reports, contracts, letters and step-by-step guides come out with the same page layout, and before every PDF the agent asks which company the document is for.
 
-![Próbka oferty](docs/oferta.png)
+![Sample proposal, report and contract](docs/samples.png)
 
-## Co dostajesz
+## What you get
 
-- 4 typy dokumentu: `dokument` (oferta, raport), `umowa`, `list`, `instrukcja`.
-- Wiele firm w jednym skillu: każda marka to folder `marki/<slug>/` z plikiem `marka.yaml`, logo i fontami. Kod się nie zmienia.
-- Równe marginesy 16 mm, logo na pierwszej stronie, w stopce kolejnych stron logomark, domena i numer strony.
-- `sprawdz` pilnuje kompletności marki (pliki fontów, kontrast kolorów, dane do umów).
-- Bezpieczny druk: surowy HTML wyłączony, JavaScript w przeglądarce wyłączony, brak pobierania czegokolwiek z sieci, obrazki tylko z katalogu dokumentu.
+- **Five ready examples, four document types:** `document` (proposal, report), `contract`, `letter`, `guide` with screenshots.
+- **Many companies in one skill:** each brand is a folder `brands/<slug>/` with `brand.yaml`, the logo and fonts. No code changes.
+- **Building blocks:** tables with a highlighted total row, KPI cards, callouts, status pills, contract parties and signature lines, guide steps that never split across pages.
+- **Consistent layout:** equal 16 mm margins, the logo on page one, logomark, domain and page number in the footer of the following pages.
+- **Brand check:** `check` validates the brand (font files, color contrast, legal details for contracts).
+- **Safe rendering:** raw HTML off, JavaScript off, no network requests, images only from the document's folder.
 
-## Wymagania
+## Requirements
 
-- Python 3.10+, `pip install pyyaml playwright` i `playwright install chromium`
+- Python 3.10+, `pip install pyyaml playwright` and `playwright install chromium`
 - [pandoc](https://pandoc.org/installing.html)
 
-## Instalacja
+## Install
 
 ```bash
 git clone https://github.com/lukasz-slusarski/papier-firmowy.git
-ln -s "$PWD/papier-firmowy/skills/papier-firmowy" ~/.claude/skills/papier-firmowy
+ln -s "$PWD/papier-firmowy/skills/letterhead" ~/.claude/skills/letterhead
 ```
 
-## Użycie
+## Use
+
+Ask your agent: "make a PDF proposal for the client from these notes". Or run it yourself:
 
 ```bash
-P=~/.claude/skills/papier-firmowy/silnik/papier.py
-python3 $P marki                                  # dostępne firmy
-python3 $P probka przyklad -o /tmp/probka         # próbki wszystkich typów
-python3 $P pdf oferta.md --marka przyklad         # oferta.pdf obok pliku
-python3 $P nowa moja-firma                        # nowa marka z wzoru
-python3 $P sprawdz moja-firma
+L=~/.claude/skills/letterhead/engine/letterhead.py
+python3 $L brands                                 # available companies
+python3 $L sample example -o /tmp/sample          # all examples in the example brand
+python3 $L pdf proposal.md --brand example        # proposal.pdf next to the file
+python3 $L new my-company                         # new brand from the template
+python3 $L check my-company
 ```
 
-Albo po prostu poproś agenta: „zrób z tego PDF dla klienta”.
+Adding your own company: [BRANDS.md](skills/letterhead/BRANDS.md). The `example` brand is fictional; copy it or `_template`.
 
-Jak dodać własną firmę: [KONFIGURACJA.md](skills/papier-firmowy/KONFIGURACJA.md). Marka `przyklad` jest fikcyjna, skopiuj ją albo `_wzor`.
+## License
 
-## English
+Code: MIT. The Rubik font in the example brand: SIL Open Font License 1.1 (`brands/example/fonts/OFL.txt`).
 
-A Claude Code skill that turns Markdown into branded PDFs (offer, contract, letter, step-by-step guide). Each company is a folder with `marka.yaml`, logo and fonts. Requires Python, pandoc and Playwright Chromium. The skill and templates are in Polish.
-
-## Licencja
-
-Kod: MIT. Font Rubik w marce przykładowej: SIL Open Font License 1.1 (`marki/przyklad/fonty/OFL.txt`).
-
-Autor: Łukasz Ślusarski, [important.is](https://important.is)
+Made by Łukasz Ślusarski, [important.is](https://important.is).

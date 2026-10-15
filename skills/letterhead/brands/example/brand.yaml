@@ -1,0 +1,55 @@
+# Letterhead brand: Example Studio (a fictional company, all data made up).
+# Copy it, or brands/_template, with `python3 letterhead.py new SLUG` and replace with your own.
+# Font: Rubik, SIL Open Font License 1.1 (fonts/OFL.txt), embedding in PDFs allowed.
+
+name: example.com
+description: A fictional company that shows how the letterhead works. Replace it with your own brand.
+
+contact:
+  website: example.com
+  email: hello@example.com
+  phone: ""
+
+entity:
+  name: Example Studio Ltd.
+  address: 1 Example Street, London EC1A 1AA
+  tax_id: "GB000000000"
+  tax_label: VAT
+  representative: Jane Doe
+
+colors:
+  text: "#1f2430"
+  headings: "#14213d"
+  accent: "#2f5bea"
+  on_accent: "#ffffff"
+  dark: "#14213d"
+  on_dark: "#ffffff"
+  muted: "#5f6675"
+  lines: "#e3e6ec"
+  card: "#f4f6fa"
+  warm: "#eef2fb"
+
+font:
+  family: Rubik
+  files:
+    - { file: fonts/Rubik-Regular.ttf, weight: 400 }
+    - { file: fonts/Rubik-Bold.ttf, weight: 700 }
+    - { file: fonts/Rubik-Italic.ttf, weight: 400, style: italic }
+    - { file: fonts/Rubik-BoldItalic.ttf, weight: 700, style: italic }
+  heading_weight: 700
+  heading_tracking: "0"
+
+logo:
+  file: logo.svg
+  light: ""
+  mark: mark.svg
+  mark_height: 5mm
+  height: 26px
+
+style:
+  radius: 12px
+  radius_large: 18px
+  title_dot: true
+  heading_marker: dot
+
+footer: example.com
