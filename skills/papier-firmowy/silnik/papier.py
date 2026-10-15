@@ -248,7 +248,17 @@ def dozwolony(url, katalogi):
         return True
     if not url.startswith("file:"):
         return False
-    sciezka = pathlib.Path(urllib.parse.unquote(urllib.parse.urlparse(url).path)).resolve()
+    # Adres nietypowy odrzucamy zamiast go tłumaczyć, żeby Python i Chromium nie odczytały go różnie:
+    # host inny niż lokalny, zapytanie, ukośnik wsteczny, zakodowany ukośnik lub NUL, segment . albo ..
+    u = urllib.parse.urlsplit(url)
+    if u.netloc not in ("", "localhost") or u.query or "\\" in u.path:
+        return False
+    if any(z in u.path.lower() for z in ("%2f", "%5c", "%00")):
+        return False
+    surowa = urllib.parse.unquote(u.path)
+    if any(s in (".", "..") for s in surowa.split("/")):
+        return False
+    sciezka = pathlib.Path(surowa).resolve()
     return any(sciezka.is_relative_to(k) for k in katalogi)
 
 def drukuj(doc, out, katalogi=()):
