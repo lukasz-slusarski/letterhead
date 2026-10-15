@@ -21,8 +21,8 @@ A skill for Claude Code (and other agents that read `SKILL.md`) that turns Markd
 ## Install
 
 ```bash
-git clone https://github.com/lukasz-slusarski/papier-firmowy.git
-ln -s "$PWD/papier-firmowy/skills/letterhead" ~/.claude/skills/letterhead
+git clone https://github.com/lukasz-slusarski/letterhead.git
+ln -s "$PWD/letterhead/skills/letterhead" ~/.claude/skills/letterhead
 ```
 
 ## Use
