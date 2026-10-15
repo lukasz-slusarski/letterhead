@@ -228,6 +228,8 @@ def frontmatter(text):
 
 def mark_up(frag):
     """Classes for what CSS would otherwise need :has() for (the renderer does not support it)."""
+    # No PDF attachments: a link with rel="attachment" would embed the linked file.
+    frag = re.sub(r'\srel="[^"]*attachment[^"]*"', "", frag, flags=re.I)
     # A row whose first cell is only bold text is a total row.
     frag = re.sub(r'<tr(?: class="([^"]*)")?>(\s*<td[^>]*><strong>[^<]*</strong></td>)',
                   lambda m: f'<tr class="{(m[1] or "") + " total"}">{m[2]}', frag)
@@ -256,6 +258,10 @@ def build_html(src, b, kind, meta, body):
 <body class="type-{kind} marker-{marker} brand-{b['_slug']}">
 {header(meta, b, kind)}{frag}{closing(meta, b, kind)}</body></html>"""
 
+# What a document may load: images, fonts and stylesheets. Anything else (.env, keys, notes)
+# could otherwise be embedded in the PDF, e.g. as an attachment.
+ASSETS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".ttf", ".otf", ".woff", ".woff2", ".css"}
+
 def local_path(url, dirs):
     """The file a file: URL points to, if it lies inside the document, skill or --files directories; else None."""
     if not url.startswith("file:"):
@@ -271,7 +277,7 @@ def local_path(url, dirs):
     if any(s in (".", "..") for s in raw.split("/")):
         return None
     path = pathlib.Path(raw).resolve()
-    if path.is_file() and any(path.is_relative_to(k) for k in dirs):
+    if path.suffix.lower() in ASSETS and path.is_file() and any(path.is_relative_to(k) for k in dirs):
         return path
     return None
 
